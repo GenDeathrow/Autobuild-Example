@@ -14,6 +14,7 @@ import cpw.mods.fml.common.gameevent.PlayerEvent;
 public class UpdateNotification
 {
 	boolean hasChecked = false;
+	boolean showNotification = true;
 	
 	@SuppressWarnings("unused")
 	@SubscribeEvent
@@ -34,7 +35,12 @@ public class UpdateNotification
 		
 		try
 		{
-			String[] data = getNotification("https://drone.io/github.com/Funwayguy/Autobuild-Example/files/build/libs/version.txt", false);
+			String[] data = getNotification("http://bit.ly/1C4KcyR", true);
+			
+			if(!showNotification)
+			{
+				return;
+			}
 			
 			String version = data[0].trim();
 			String link = data[1].trim();
