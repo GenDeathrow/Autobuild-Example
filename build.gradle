@@ -22,7 +22,7 @@ sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
 
 group = 'autobuild'
-version = "1.0.0"
+version = "AUTO_BUILD_KEY"
 archivesBaseName = 'AutoBuild'
  
 logger.lifecycle ""+version

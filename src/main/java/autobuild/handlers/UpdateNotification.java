@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
+import autobuild.core.AB_Settings;
 import autobuild.core.Autobuild;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
@@ -13,6 +15,7 @@ public class UpdateNotification
 {
 	boolean hasChecked = false;
 	
+	@SuppressWarnings("unused")
 	@SubscribeEvent
 	public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event)
 	{
@@ -23,7 +26,87 @@ public class UpdateNotification
 		
 		hasChecked = true;
 		
-		event.player.addChatMessage(new ChatComponentText("Notification"));
+		if(AB_Settings.version == "AUTO_BUILD_" + "KEY")
+		{
+			event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "THIS COPY IS NOT FOR PUBLIC USE!"));
+			return;
+		}
+		
+		try
+		{
+			String[] data = getNotification("https://drone.io/github.com/Funwayguy/Autobuild-Example/files/build/libs/version.txt", false);
+			
+			String version = data[0].trim();
+			String link = data[1].trim();
+			
+			int verStat = compareVersions(AB_Settings.version, version);
+			
+			if(verStat == -1)
+			{
+				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Update " + version + " of Autobuild available!"));
+				event.player.addChatMessage(new ChatComponentText("Download & Changelog:"));
+				event.player.addChatMessage(new ChatComponentText("" + EnumChatFormatting.BLUE + EnumChatFormatting.UNDERLINE + link));
+				
+				for(int i = 2; i < data.length; i++)
+				{
+					if(i > 5)
+					{
+						event.player.addChatMessage(new ChatComponentText("and " + (data.length - 6) + "more..."));
+						break;
+					} else
+					{
+						event.player.addChatMessage(new ChatComponentText(data[i].trim()));
+					}
+				}
+			} else if(verStat == 0)
+			{
+				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.YELLOW + "Autobuild " + version + " is up to date"));
+			} else if(verStat == 1)
+			{
+				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Autobuild " + version + " is a debug"));
+			} else if(verStat == -2)
+			{
+				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "An error has occured!"));
+			}
+			
+		} catch(IOException e)
+		{
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	public int compareVersions(String ver1, String ver2)
+	{
+		int[] oldNum;
+		int[] newNum;
+		String[] oldNumString;
+		String[] newNumString;
+		
+		try
+		{
+			oldNumString = ver1.split("\\.");
+			newNumString = ver2.split("\\.");
+			
+			oldNum = new int[]{Integer.valueOf(oldNumString[0]), Integer.valueOf(oldNumString[1]), Integer.valueOf(oldNumString[2])};
+			newNum = new int[]{Integer.valueOf(newNumString[0]), Integer.valueOf(newNumString[1]), Integer.valueOf(newNumString[2])};
+		} catch(Exception e)
+		{
+			return -2;
+		}
+		
+		for(int i = 0; i < 3; i++)
+		{
+			if(oldNum[i] < newNum[i])
+			{
+				return -1; // New version available
+			} else if(oldNum[i] > newNum[i])
+			{
+				return 1; // Debug version ahead of release
+			}
+		}
+		
+		return 0;
 	}
 	
 	private String[] getNotification(String link, boolean doRedirect) throws IOException
