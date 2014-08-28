@@ -1,0 +1,14 @@
+[{
+    "modid": "autobuild",
+    "name": "AutoBuild",
+    "description": "An example of an automated build, notification and changelog system for mods",
+    "version": "1.0.0",
+    "mcversion": "1.7.10",
+    "url": "",
+    "updateUrl": "",
+    "authorList": ["Funwayguy"],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+}]
